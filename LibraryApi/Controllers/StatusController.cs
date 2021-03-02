@@ -8,34 +8,41 @@ namespace LibraryApi.Controllers
 {
     public class StatusController : ControllerBase
     {
+
+        // GET /status
         [HttpGet("status")]
         public StatusResponse GetTheStatus()
         {
             return new StatusResponse
             {
-                Message = "Great Job!",
+                Message = "Everything is going great. Thanks for asking!",
                 LastChecked = DateTime.Now
             };
         }
 
+        // GET /customers/13
+        // GET /customers/(anyhting that is an integer)
         [HttpGet("customers/{customerId:int}")]
         public ActionResult GetInfoAboutCustomer(int customerId)
         {
             return Ok($"Getting info about customer {customerId}");
         }
 
-        [HttpGet("blogs/{year:int}/{month:int}/{day:int}")]
+        // GET blogs/2018/4/15
+        [HttpGet("blogs/{year:int}/{month:int:min(1):max(12)}/{day:int}")]
         public ActionResult GetBlogPosts(int year, int month, int day)
         {
-            if(day < 1 || day > 31)
+            if (day < 1 || day > 31)
             {
                 return NotFound();
             }
             return Ok($"Getting blogs for {month}-{day}-{year}");
         }
 
+        // GET /employees
+        // GET /employees?department=DEV
         [HttpGet("employees")]
-        public ActionResult GetEmployees([FromQuery] string department="All")
+        public ActionResult GetEmployees([FromQuery] string department = "All")
         {
             var response = new GetEmployeesResponse
             {
@@ -45,14 +52,22 @@ namespace LibraryApi.Controllers
             return Ok(response);
         }
 
-        [HttpPost("employees")]
-        public ActionResult Hire([FromBody] PostEmployeeResuest request)
+        [HttpGet("whoami")]
+        public ActionResult WhoAmi([FromHeader(Name ="User-Agent")]string userAgent)
         {
-            return Ok($"Hiring {request.Name} in {request.Department} at a starting salary of {request.StartingSalary}");
+
+            return Ok($"I have no idea, but you are running {userAgent}");
+        }
+
+        [HttpPost("employees")]
+        public ActionResult Hire([FromBody] PostEmployeeRequest request)
+        {
+            return Ok($"Hiring {request.Name} in {request.Department} for {request.StartingSalary:c}");
+
         }
     }
 
-    public class PostEmployeeResuest
+    public class PostEmployeeRequest
     {
         public string Name { get; set; }
         public string Department { get; set; }
@@ -70,4 +85,6 @@ namespace LibraryApi.Controllers
         public string Message { get; set; }
         public DateTime LastChecked { get; set; }
     }
+
+
 }
